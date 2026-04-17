@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "scheme": "joyfuljuices",
+    "userInterfaceStyle": "automatic",
+    "orientation": "default",
+    "web": {
+      "bundler": "metro"
+    },
+    "name": "joyfuljuices",
+    "slug": "joyfuljuices",
+    "plugins": ["expo-font"],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
