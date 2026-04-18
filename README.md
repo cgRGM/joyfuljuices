@@ -41,6 +41,12 @@ This project uses SQLite with Drizzle ORM.
 bun run db:push
 ```
 
+To generate SQL migrations for Cloudflare D1, run:
+
+```bash
+bun run db:generate
+```
+
 Then, run the development server:
 
 ```bash
@@ -83,6 +89,21 @@ If you want to add app-specific blocks instead of shared primitives, run the sha
 - Deploy: bun run deploy
 - Destroy: bun run destroy
 
+This repo uses [Alchemy](https://alchemy.run/) to define Cloudflare resources in [packages/infra/alchemy.run.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/packages/infra/alchemy.run.ts) instead of a hand-written `wrangler.toml`.
+
+The Worker bindings in `alchemy.run.ts` are the effective `wrangler.toml` equivalent:
+
+- `DB`: Cloudflare D1 binding for Drizzle + Better Auth + order data
+- `CORS_ORIGIN`: allowed web origin for Hono CORS
+- `BETTER_AUTH_SECRET`: Better Auth secret
+- `BETTER_AUTH_URL`: Better Auth base URL
+- `STRIPE_SECRET_KEY`: Stripe secret key for checkout session creation
+- `STRIPE_WEBHOOK_SECRET`: Stripe webhook signature secret
+- `STRIPE_SUCCESS_URL`: web success redirect after Stripe Checkout
+- `STRIPE_CANCEL_URL`: web cancel redirect after Stripe Checkout
+
+Use [apps/server/.env.example](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/apps/server/.env.example) as the local server env template.
+
 For more details, see the guide on [Deploying to Cloudflare with Alchemy](https://www.better-t-stack.dev/docs/guides/cloudflare-alchemy).
 
 ## Git Hooks and Formatting
@@ -100,8 +121,22 @@ joyfuljuices/
 ├── packages/
 │   ├── ui/          # Shared shadcn/ui components and styles
 │   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
+│   ├── db/          # Database schema, seed data, and migrations
+│   └── infra/       # Cloudflare Workers + D1 infrastructure via Alchemy
 ```
+
+### Backend layout
+
+- [apps/server/src/index.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/apps/server/src/index.ts): Hono app, `/api` routing, auth middleware, Stripe webhook mount
+- [apps/server/src/routes/products.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/apps/server/src/routes/products.ts): product CRUD + admin seed endpoint
+- [apps/server/src/routes/checkout.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/apps/server/src/routes/checkout.ts): authenticated Stripe Checkout session creation + D1 checkout snapshot
+- [apps/server/src/routes/orders.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/apps/server/src/routes/orders.ts): customer order history + admin status updates
+- [apps/server/src/routes/webhook.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/apps/server/src/routes/webhook.ts): Stripe webhook handler for `checkout.session.completed`
+- [packages/auth/src/index.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/packages/auth/src/index.ts): Better Auth config with `customer` / `admin` role field
+- [packages/db/src/schema/auth.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/packages/db/src/schema/auth.ts): Better Auth tables
+- [packages/db/src/schema/commerce.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/packages/db/src/schema/commerce.ts): products, checkout sessions, orders, and order items
+- [packages/db/src/seed.ts](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/packages/db/src/seed.ts): Joyful Juices demo catalog seed data
+- [packages/db/src/migrations/0000_bent_ravenous.sql](/Users/newrgm/dev/RocktownLabs/projects/joyfuljuices/packages/db/src/migrations/0000_bent_ravenous.sql): initial D1 SQL migration
 
 ## Available Scripts
 

@@ -3,6 +3,7 @@ import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanst
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import Header from "../components/header";
+import { CartDrawer } from "../components/CartDrawer";
 
 import appCss from "../index.css?url";
 
@@ -40,9 +41,12 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body>
-        <div className="grid h-svh grid-rows-[auto_1fr]">
+        <div className="flex min-h-svh flex-col font-sans">
           <Header />
-          <Outlet />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+          <CartDrawer />
         </div>
         <Toaster richColors />
         <TanStackRouterDevtools position="bottom-left" />

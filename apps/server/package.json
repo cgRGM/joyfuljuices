@@ -13,7 +13,9 @@
     "@joyfuljuices/env": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
+    "drizzle-orm": "^0.45.2",
     "hono": "^4.8.2",
+    "stripe": "^22.0.2",
     "zod": "catalog:"
   },
   "devDependencies": {

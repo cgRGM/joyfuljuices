@@ -7,6 +7,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 export function createAuth() {
   const db = createDb();
+  const isDevelopment = globalThis.process?.env.NODE_ENV === "development";
 
   return betterAuth({
     database: drizzleAdapter(db, {
@@ -17,12 +18,22 @@ export function createAuth() {
     trustedOrigins: [
       env.CORS_ORIGIN,
       "joyfuljuices://",
-      ...(env.NODE_ENV === "development"
+      ...(isDevelopment
         ? ["exp://", "exp://**", "exp://192.168.*.*:*/**", "http://localhost:8081"]
         : []),
     ],
     emailAndPassword: {
       enabled: true,
+    },
+    user: {
+      additionalFields: {
+        role: {
+          type: ["customer", "admin"],
+          required: false,
+          defaultValue: "customer",
+          input: false,
+        },
+      },
     },
     // uncomment cookieCache setting when ready to deploy to Cloudflare using *.workers.dev domains
     // session: {
@@ -49,3 +60,7 @@ export function createAuth() {
     plugins: [expo()],
   });
 }
+
+export const auth = createAuth();
+
+export type AuthSession = typeof auth.$Infer.Session;
